@@ -40,13 +40,9 @@ A.  Calculate $E[X]$
 
 B.  Calculate $Var(X)$
 
-    $
-    \sum_{Sx} x^2p(x)-(\sum_{Sx} xp(x))^2 
-    $
+    $\sum_{Sx} x^2p(x)-(\sum_{Sx} xp(x))^2$
 
-    $
-    ((1^2\cdot\frac{3}{8}) + (2^2\cdot\frac{1}{8})+(3^2\cdot\frac{1}{8})+(4^2\cdot\frac{3}{8}))-2.5^2
-    $
+    $((1^2\cdot\frac{3}{8}) + (22\cdot\frac{1}{8})+(32\cdot\frac{1}{8})+(42\cdot\frac{3}{8}))-2.52$
 
     $$
     \boxed{1.75}
@@ -73,17 +69,13 @@ D.  Plot $F(x)$. To make a barplot, use the `barplot` function.
 
 E.  Calculate $P(X \geq 4)$
 
-    $
-    \text{4 is the only possible outcome $\le$ 4 in the set}
-    $
+    $\text{4 is the only possible outcome $\le$ 4 in the set}$
 
-    $
-    P(4) = \frac{3}{8}
-    $
+    $P(4) = \frac{3}{8}$
 
-    $
+    $$
     \boxed{\frac{3}{8}}
-    $
+    $$
 
 ### Problem 1.2 (5 Points)
 
