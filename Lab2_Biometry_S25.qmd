@@ -92,6 +92,7 @@ support0_10 <- c(seq(0,10))
 XPDF <- function(x,p){
   ((1-p)^x)*p
 }
+
 barplot(XPDF(support0_10,0.5), ylab = "probability density", xlab = "x", main = "PDF for X")
 
 
@@ -99,7 +100,7 @@ barplot(XPDF(support0_10,0.5), ylab = "probability density", xlab = "x", main = 
 
 ```{r}
 YPDF <- function(y,l){
-  ifelse(y >= 0,l*(exp(1)^(-l*y)))
+  l*(exp(1)^(-l*y))
 }
 
 plot(YPDF(support0_10,0.5), ylab = "probability density", xlab = "y", main = "PDF for Y")
@@ -109,10 +110,35 @@ A)  (2 Points) Calculate the probability that $X=5$ and the probability that $Y=
 
 ```{r}
 XPDF(5,0.5)
-YPDF(5,0.5)
 ```
 
+::: callout-note
+## Solution to 1.2B
+
+P(X = 5) = 0.015625
+
+P(Y = 5) = 0, because the probability that a random variable equals an exact number over a continuous interval is equal to 0
+:::
+
 A)  (1 Points) Calculate the probability that $5<X \leq 6$ and the probability that that $5 < Y \leq 6$. Hint: Use the CDF for this.
+
+```{r}
+pgeom(support0_10[7], prob=0.5) - pgeom(support0_10[6], prob=0.5)
+pexp(support0_10[7], rate=0.5) - pexp(support0_10[6], rate=0.5)
+
+```
+
+::: callout-note
+## Solution to 1.2C
+
+$
+P(5<X\leq6) = \boxed{0.0078125}
+$
+
+$
+P(5<Y\leq6)=\boxed{0.03229793}
+$
+:::
 
 ## 2. Knowing Your Distributions
 
