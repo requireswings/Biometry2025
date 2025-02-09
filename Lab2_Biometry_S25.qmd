@@ -148,19 +148,53 @@ For each of the following situations, propose a probability distribution that wo
 
 A.  We are interested in simulating the number of aphids per leaf on a tomato plant. For each leaf, there will be a discrete number of aphids, with no strict upper limit.
 
+    A.  Poisson
+
+        A.  Number of aphids –\> discrete
+
+        B.  Fixed interval of space (per leaf) –\> Poisson
+
 B.  We are interested in simulating the time it takes a vulture to locate it's next meal. Assume most vultures find a meal rather quickly, but some will take a very (arbitrarily) long time.
+
+    A.  Exponential
+
+        A.  Time –\> continuous
+
+        B.  Amount of time it takes before a "success" (ie. meal located) –\> Exponential
 
 C.  We have collected 100 moths from the environment that may belong to one of two different color morphs (light and dark). We are interested in simulating the number of light moths collected in this sample.
 
+    A.  Binomial
+
+        A.   Two discrete categories
+
+        B.  Counting the number of one of two binary options –\> Binomial
+
 D.  We are in the field, again sampling a species of moth that may belong to one of two color morphs (light or dark). We are interested in simulating whether or not an individual moth sampled will be from the dark color morph.
 
+    A.  Bernoulli
+
+        A.  Two discrete options
+
+        B.  Counting one outcome out of two binary possibilities
+
 E.  We are interested in simulating the average number of leaves per tree in a forest across many different forests in the Northeast US.
+
+    A.  Poisson
+
+        A.  Number of leaves –\> discrete
+
+        B.  Number of leaves (events) in a fixed interval of space (trees) –\> Poissonwad
 
 ### Problem 2.2 (10 Points)
 
 For each of the following, if necessary identify the probability distribution you are using and justify your choice, then answer the question showing your work.
 
 A.  (2 Points) What is the probability that a predator will capture it's first prey item after six failed attempts given that it's probability of capturing prey per attempt is 0.3?
+
+    ::: callout-note
+    ## Solution to 2.2A
+    :::
 
 B.  (2 Points) If new members of a species immigrate into a defined patch of habitat at a constant rate of 0.5 per day, what is the expected wait time until the next new arrival?
 
