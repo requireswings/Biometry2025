@@ -131,13 +131,9 @@ pexp(support0_10[7], rate=0.5) - pexp(support0_10[6], rate=0.5)
 ::: callout-note
 ## Solution to 1.2C
 
-$
-P(5<X\leq6) = \boxed{0.0078125}
-$
+\$ P(5\<X\leq6) = \boxed{0.0078125} \$
 
-$
-P(5<Y\leq6)=\boxed{0.03229793}
-$
+\$ P(5\<Y\leq6)=\boxed{0.03229793} \$
 :::
 
 ## 2. Knowing Your Distributions
@@ -166,7 +162,7 @@ C.  We have collected 100 moths from the environment that may belong to one of t
 
     A.  Binomial
 
-        A.   Two discrete categories
+        A.  Two discrete categories
 
         B.  Counting the number of one of two binary options –\> Binomial
 
@@ -176,7 +172,7 @@ D.  We are in the field, again sampling a species of moth that may belong to one
 
         A.  Two discrete options
 
-        B.  Counting one outcome out of two binary possibilities
+        B.  Counting one outcome out of two binary possibilities –\> Bernoulli
 
 E.  We are interested in simulating the average number of leaves per tree in a forest across many different forests in the Northeast US.
 
@@ -184,7 +180,7 @@ E.  We are interested in simulating the average number of leaves per tree in a f
 
         A.  Number of leaves –\> discrete
 
-        B.  Number of leaves (events) in a fixed interval of space (trees) –\> Poissonwad
+        B.  Number of leaves (events) in a fixed interval of space (trees) –\> Poisson
 
 ### Problem 2.2 (10 Points)
 
@@ -192,15 +188,43 @@ For each of the following, if necessary identify the probability distribution yo
 
 A.  (2 Points) What is the probability that a predator will capture it's first prey item after six failed attempts given that it's probability of capturing prey per attempt is 0.3?
 
-    ::: callout-note
-    ## Solution to 2.2A
-    :::
+    $\text{PMF of a geometric distribution =} (1-p)^x\cdot p $
+
+    $
+    P(\text{capture on 7th attempt) =} (1-0.3)^{7}\cdot0.3
+    $
+
+    $
+    = \boxed{0.0247}
+    $
 
 B.  (2 Points) If new members of a species immigrate into a defined patch of habitat at a constant rate of 0.5 per day, what is the expected wait time until the next new arrival?
 
+    $
+    \text{PDF of an exponential distribution}=\lambda e^{-\lambda x},
+    \text{ if } x \geq 0
+    $
+
+    $
+    = 0.5e^{-0.5}
+    $
+
+    $
+    = \boxed{0.3033}
+    $
+
 C.  (2 Points) For the example above (B), what is the expected number of arrivals over a one-week period?
 
+    $
+    0.5e^{-0.5\cdot7} = \boxed{0.0151}
+    $
+
 D.  (3 Points) We randomly selected 100 White Ash trees from a forest in upstate NY. For the area we are interested in, we know that from previous surveys about 30% of trees are infested by Emerald Ash Borers (assume a 0.3 probability that any given tree is infested). Use R to plot the pdf of the number of infested trees in your sample. Discuss (briefly!) the limitations of our approach for modeling this probability - how might the assumptions of our model be violated?
+
+    ```{r}
+    whiteashtrees <- seq(0,100, by = 1)
+    plot(dbinom(whiteashtrees, 100, 0.3))
+    ```
 
 E.  (1 Point) We are studying a forest where tree heights are normally distributed with a mean height of 10 meters and a variance of 4 meters. What percent of trees do we expect to fall within a height range of 6-14 meters?
 
