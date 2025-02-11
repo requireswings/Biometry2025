@@ -204,7 +204,7 @@ B.  (2 Points) If new members of a species immigrate into a defined patch of hab
 
 C.  (2 Points) For the example above (B), what is the expected number of arrivals over a one-week period?
 
-    \$ 0.5e\^{-0.5\cdot7} = \boxed{0.0151} \$
+    \$0.5e\^{-0.5\cdot7} = \boxed{0.0151}\$
 
 D.  (3 Points) We randomly selected 100 White Ash trees from a forest in upstate NY. For the area we are interested in, we know that from previous surveys about 30% of trees are infested by Emerald Ash Borers (assume a 0.3 probability that any given tree is infested). Use R to plot the pdf of the number of infested trees in your sample. Discuss (briefly!) the limitations of our approach for modeling this probability - how might the assumptions of our model be violated?
 
@@ -216,6 +216,12 @@ D.  (3 Points) We randomly selected 100 White Ash trees from a forest in upstate
     ```
 
 E.  (1 Point) We are studying a forest where tree heights are normally distributed with a mean height of 10 meters and a variance of 4 meters. What percent of trees do we expect to fall within a height range of 6-14 meters?
+
+    ::: callout-note
+    ## 2.2E
+
+    95% of samples in a normal distribution are within +- 1 standard deviation from the mean. Therefore, 95% of trees would be between 6 and 14 meters (10 +- 4 meters).
+    :::
 
 ## 3. Checking for Normality with Quantile-Quantile Plots
 
@@ -293,6 +299,22 @@ I will note that the interpretation of Q-Q plots is inherently subjective. Never
 
 Many biological variables follow a lognormal distribution (see Aho Ch. 3.3.2.8). That is, if you take their logarithm, the resulting values should be normally distributed. For this reason, we often apply a log-transformation to our data prior to analysis, particularly if the data is skewed. Write a function that generates a Q-Q plot (with a reference trendline) on the log-transformation of input data. Then, apply this function to your penguin mass data and provide an interpretation of what the output means.
 
+```{r}
+lnormal_qqplot <- function(data){
+  ldata <- log(data)
+  qqnorm(ldata)
+  qqline(ldata)
+}
+
+lnormal_qqplot(data = penguins$body_mass_g)
+```
+
+::: callout-note
+## 3.1
+
+The lognormal Q-Q plot of the penguin mass data is not a straight line (curves away from the trendline), which supports that the penguin mass data is not normally distributed.
+:::
+
 ### Problem 3.2 (5 Points)
 
 Now, try applying the function you wrote in 4.1 to the different species of penguin recorded in the dataset, the different penguin sexes recorded in the dataset, and the various species-sex combinations individually. Then, provide an interpretation for what these Q-Q plots tell you.
@@ -302,6 +324,10 @@ To get full credit for this problem use the `par` function to array these plots 
 **Hint:** You may need to add a second input argument to your function from the last question to control the title of your plots.
 
 **Note:** A binary view of sex, as encoded in this dataset, can often limit the scope of biological inference made. [In many systems, explicit acknowledgement of sex as the complex multivariate and non-discrete phenotype it is can yield new biological insight.](https://doi.org/10.1093/icb/icad027)
+
+```{r}
+
+```
 
 ## 5. List of All Problems (Above, 35 Points)
 
