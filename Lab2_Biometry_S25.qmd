@@ -2,8 +2,10 @@
 title: "Lab 2: Probability Distributions"
 subtitle: "Graded Out of 35 Points"
 author: Jennifer Bradley
-date: 01-27-25
-format: pdf
+date: 02-11-25
+output:
+  pdf_document:
+    latex_engine: xelatex
 editor: visual
 ---
 
@@ -103,7 +105,7 @@ YPDF <- function(y,l){
   l*(exp(1)^(-l*y))
 }
 
-plot(YPDF(support0_10,0.5), ylab = "probability density", xlab = "y", main = "PDF for Y")
+plot(YPDF(support0_10,0.5), type = "l", ylab = "probability density", xlab = "y", main = "PDF for Y")
 ```
 
 A)  (2 Points) Calculate the probability that $X=5$ and the probability that $Y=5$
@@ -176,11 +178,11 @@ D.  We are in the field, again sampling a species of moth that may belong to one
 
 E.  We are interested in simulating the average number of leaves per tree in a forest across many different forests in the Northeast US.
 
-    A.  Poisson
+    A.  Normal
 
-        A.  Number of leaves –\> discrete
+        A.  Average number of leaves –\> continuous
 
-        B.  Number of leaves (events) in a fixed interval of space (trees) –\> Poisson
+        B.  Distribution of characteristic with additive effects –\> Normal
 
 ### Problem 2.2 (10 Points)
 
@@ -190,21 +192,21 @@ A.  (2 Points) What is the probability that a predator will capture it's first p
 
     \$\text{PMF of a geometric distribution =} (1-p)\^x\cdot p \$
 
-    \$ P(\text{capture on 7th attempt) =} (1-0.3)\^{7}\cdot0.3 \$
+    \$ P(\text{capture on 7th attempt) =} (1-0.3)\^{6}\cdot0.3 \$
 
-    \$ = \boxed{0.0247} \$
+    \$ = \boxed{0.0352947} \$
 
 B.  (2 Points) If new members of a species immigrate into a defined patch of habitat at a constant rate of 0.5 per day, what is the expected wait time until the next new arrival?
 
-    \$ \text{PDF of an exponential distribution}=\lambda e\^{-\lambda x}, \text{ if } x \geq 0 \$
+    \$ \text{Expected Value x of an exponential distribution}= \frac{1}{lambda}}\$
 
-    \$ = 0.5e\^{-0.5} \$
-
-    \$ = \boxed{0.3033} \$
+    \$ = \boxed{2} \$
 
 C.  (2 Points) For the example above (B), what is the expected number of arrivals over a one-week period?
 
-    \$0.5e\^{-0.5\cdot7} = \boxed{0.0151}\$
+    Poisson
+
+    \$0.5\\cdot7\\text{ days}=\\boxed{3.5}\$
 
 D.  (3 Points) We randomly selected 100 White Ash trees from a forest in upstate NY. For the area we are interested in, we know that from previous surveys about 30% of trees are infested by Emerald Ash Borers (assume a 0.3 probability that any given tree is infested). Use R to plot the pdf of the number of infested trees in your sample. Discuss (briefly!) the limitations of our approach for modeling this probability - how might the assumptions of our model be violated?
 
@@ -220,112 +222,67 @@ E.  (1 Point) We are studying a forest where tree heights are normally distribut
     ::: callout-note
     ## 2.2E
 
-    95% of samples in a normal distribution are within +- 1 standard deviation from the mean. Therefore, 95% of trees would be between 6 and 14 meters (10 +- 4 meters).
+    95% of samples in a normal distribution are within +- 2 standard deviations from the mean. Therefore, 95% of trees would be between 6 and 14 meters (10 +- 4 meters).
     :::
 
 ## 3. Checking for Normality with Quantile-Quantile Plots
 
-Let's take a look at our penguin body mass data. We are wondering whether it would be appropriate to assume that penguin body mass is approximately normally distributed. First, let's take a look at the distribution of penguin body mass:
-
-```{r}
-#the par function is a handy tool for making side-by-side plots in base R
-#BUT for publication-quality multi-panel figures, I recommend learning ggplot 
-#in combination withthe ggpubr package
-#This command tells us to lay out plots in one row and two columns
-par(mfrow=c(1,2))
-
-#plot one is a histogram, use ?hist() for documentation
-#try playing with the "breaks" argument
-hist(penguins$body_mass_g,
-     freq=FALSE, #Tells R to plot density rather than frequency on Y-axis
-     main="",
-     xlab="Penguin Body Mass (g)")
-
-#plot two is a density plot, use ?density() for documentation
-#try playing with the "bw" argument
-plot(density(penguins$body_mass_g,na.rm=T),
-     main="",
-     xlab="Penguin Body Mass (g)")
-
-#Make sure to set this back to one row and one column for your next figures
-par(mfrow=c(1,1))
-```
-
-Does this look normal to you? To me, these data seem quite skewed and possibly multimodal.
-
-One way to visually check whether data follows a particular distribution is by using something called a ["Quantile-Quantile Plot"](https://library.virginia.edu/data/articles/understanding-q-q-plots). In particular, these are often used for checking normality. These plots compare two distributions (usually an empirical and a theoretical distribution - like our penguin data and a normal distribution) using their quantiles (also called percentiles). If the two distributions have the same form, then the "Q-Q Plot" should be a line.
-
-What is a quantile? They are points in your distribution below which a certain proportion of values fall. For example, the 0.90 quantile is the number such that 90% of your data falls below that value. You can generate quantiles for data easily using the `quantile` function:
-
-```{r}
-quantile(x = penguins$body_mass_g,
-         probs = 0.90,
-         na.rm=T) # we need to tell this function to ignore the NA values 
-```
-
-So, to compare the quantiles of our penguin data to the standard normal distribution we could write:
-
-```{r}
-#First let's generate some data from a standard normal distribution
-norm_data <- rnorm(1000)
-
-#Let's now calculate the quantiles for our penguins
-quantiles_penguins <- quantile(x = penguins$body_mass_g,
-         probs = seq(0.01,0.99,0.01),
-         na.rm=T)
-
-#And for our theoretical distribution
-quantiles_norm <- quantile(x = norm_data,
-         probs = seq(0.01,0.99,0.01))
-
-#Now, let's plot them against one another
-plot(quantiles_norm,quantiles_penguins,
-     xlab="Simulated Standard Normal Quantiles",
-     ylab="Sample Quantiles")
-#For good measure, let's add a trend line to make it easier to visualize
-abline(lm(quantiles_penguins~quantiles_norm))
-```
-
-Hmm, that doesn't quite look like a straight line to me... For future reference, we can generate the same plot using the functions `qqnorm` and `qqline`.
-
-```{r}
-qqnorm(penguins$body_mass_g)
-qqline(penguins$body_mass_g)
-```
-
-I will note that the interpretation of Q-Q plots is inherently subjective. Nevertheless, they serve as a pretty good check for whether there's something wonky with your data.
-
 ### Problem 3.1 (5 Points)
-
-Many biological variables follow a lognormal distribution (see Aho Ch. 3.3.2.8). That is, if you take their logarithm, the resulting values should be normally distributed. For this reason, we often apply a log-transformation to our data prior to analysis, particularly if the data is skewed. Write a function that generates a Q-Q plot (with a reference trendline) on the log-transformation of input data. Then, apply this function to your penguin mass data and provide an interpretation of what the output means.
-
-```{r}
-lnormal_qqplot <- function(data){
-  ldata <- log(data)
-  qqnorm(ldata)
-  qqline(ldata)
-}
-
-lnormal_qqplot(data = penguins$body_mass_g)
-```
 
 ::: callout-note
 ## 3.1
 
-The lognormal Q-Q plot of the penguin mass data is not a straight line (curves away from the trendline), which supports that the penguin mass data is not normally distributed.
+The Q-Q plot does not fit the trendline very well (especially at small and large values), which does not support that the data is exactly normally distributed.
 :::
+
+```{r}
+lnormal_qqplot <- function(data, x){
+  ldata <- log(data)
+  qqnorm(ldata, main = x)
+  qqline(ldata)
+}
+
+lnormal_qqplot(data = penguins$body_mass_g, "Q-Q Body Mass")
+```
 
 ### Problem 3.2 (5 Points)
 
-Now, try applying the function you wrote in 4.1 to the different species of penguin recorded in the dataset, the different penguin sexes recorded in the dataset, and the various species-sex combinations individually. Then, provide an interpretation for what these Q-Q plots tell you.
-
-To get full credit for this problem use the `par` function to array these plots into three figures (so your grader maintains some semblance of sanity). For best visibility, I recommend using `par(mfrow=c(1,3)` for the three species plots, `par(mfrow=c(1,2)` for the two sex plots, and `par(mfrow=c(2,3)` for the six species-sex combinations. Be sure to label each plot with a descriptive title using the `main` option in the `plot` function to get full credit.
-
-**Hint:** You may need to add a second input argument to your function from the last question to control the title of your plots.
-
-**Note:** A binary view of sex, as encoded in this dataset, can often limit the scope of biological inference made. [In many systems, explicit acknowledgement of sex as the complex multivariate and non-discrete phenotype it is can yield new biological insight.](https://doi.org/10.1093/icb/icad027)
-
 ```{r}
+a_penguins <- subset(penguins, penguins$species=="Adelie")
+cs_penguins <- subset(penguins, penguins$species=="Chinstrap")
+g_penguins <- subset(penguins, penguins$species=="Gentoo")
+
+par(mfrow=c(1,3))
+lnormal_qqplot(a_penguins$body_mass_g, "Adelie Penguin Body Mass")
+lnormal_qqplot(cs_penguins$body_mass_g, "Chinstrap Penguin Body Mass")
+lnormal_qqplot(g_penguins$body_mass_g, "Gentu Penguin Body Mass")
+
+
+female_penguins <- subset(penguins, sex == "female")
+male_penguins <- subset(penguins, sex == "male")
+
+par(mfrow=c(1,2))
+lnormal_qqplot(female_penguins$body_mass_g, "Female Penguins Body Mass")
+lnormal_qqplot(male_penguins$body_mass_g, "Male Penguins Body Mass")
+
+female_a_penguins <- subset(a_penguins, sex == "female")
+male_a_penguins <- subset(a_penguins, sex == "male")
+
+female_cs_penguins <- subset(cs_penguins, sex == "female")
+male_cs_penguins <- subset(cs_penguins, sex == "male")
+
+female_g_penguins <- subset(g_penguins, sex == "female")
+male_g_penguins <- subset(g_penguins, sex == "male")
+
+par(mfrow=c(2,3))
+lnormal_qqplot(female_a_penguins$body_mass_g,"Female Adelie Penguins Body Mass")
+lnormal_qqplot(male_a_penguins$body_mass_g,"Male Adelie Penguins Body Mass")
+
+lnormal_qqplot(female_cs_penguins$body_mass_g, "Female Chinstrap Penguins Body Mass")
+lnormal_qqplot(male_cs_penguins$body_mass_g,"Male Chinstrap Penguins Body Mass")
+
+lnormal_qqplot(female_g_penguins$body_mass_g, "Female Gentu Penguins Body Mass")
+lnormal_qqplot(male_g_penguins$body_mass_g, "Male Gentu Penguins Body Mass")
 
 ```
 
