@@ -33,7 +33,7 @@ A.  (1 Point) Write a function to calculate $W^2$ from a given sample
     ```{r}
     True_XVar <- function(Xset){
       Xrunning_sum <- 0
-      Xmean <- sum(Xset)/length(Xset)
+      Xmean <- mean(Xset)
       
       for (i in 1:length(Xset)) {
         Xrunning_sum <- Xrunning_sum + ((Xset[i] - Xmean)^2)
@@ -42,6 +42,8 @@ A.  (1 Point) Write a function to calculate $W^2$ from a given sample
       Xvar_result <- Xrunning_sum/length(Xset)
       print(Xvar_result)
     }
+
+    True_XVar(c(1,2,3))
     ```
 
 B.  (2 Points) Create two plots (using function `plot` with option `type="l"`) showing (1) how the mean (*i.e.,* expected value) of $W^2$ over 1000 samples of size $n$ changes with increasing sample size (vary $n$ from 1 to 100), for data sampled from a standard normal distribution, and (2) how the mean (*i.e.,* expected) sample variance changes with increasing sample size for the same distribution (using function `var`).
@@ -62,24 +64,31 @@ B.  (2 Points) Create two plots (using function `plot` with option `type="l"`) s
         Sample_Xvar_means <- c()
 
         ##: Calculate the mean value of true var of random variable X 100 times and plot the distribution of means
-          for(i in 1:100){
+        for(i in 1:100){
             
-            for(j in 1:1000){
-              True_Xvar_results[j] <- True_Var(rnorm(i))
-            }
-            True_Xvar_means[i] <- mean(True_Xvar_results)
+          for(j in 1:1000){
+            True_Xvar_results[j] <- True_XVar(rnorm(i))
           }
+          True_Xvar_means[i] <- mean(True_Xvar_results)
+        }
           
-          plot(True_Xvar_means, type = "l")
-
-
 
         ##: Calculate the mean value of sample var of random variable X
-        #sample_size <- 1
-        #Mean_Sample_XVar <- function(dist){
+        for(i in 1:100){
+            
+          for(j in 1:1000){
+            Sample_Xvar_results[j] <- var(rnorm(i))
+          }
+          Sample_Xvar_means[i] <- mean(Sample_Xvar_results)
+        }
+
+        par(mfrow = c(1,2))
+        plot(True_Xvar_means, type = "l", main = "Mean True Variance")
+        plot(Sample_Xvar_means, type = "l", main = "Mean Sample Variance")
+
           
-          
-        #}
+
+
         ```
 
 C.  (2 Points) Interpret your plots from part B. Do we see evidence of bias? Is this bias more pronounced at some values of $n$ than others?
