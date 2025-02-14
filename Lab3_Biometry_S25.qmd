@@ -1,0 +1,235 @@
+---
+title: "Lab 3: Parameters & Estimators"
+subtitle: "Graded Out of 35 Points"
+author: Jennifer Bradley
+date: 01-27-25
+format: html
+editor: visual
+---
+
+We will again be using our Palmer Penguins data today for some problems, so let's load that package in now:
+
+```{r}
+#| label: load-packagesa
+#| include: true
+
+library(palmerpenguins)
+
+#I also want us just to focus on two species, Adelie and Gentoo, so we are going to cut the Chinstrap data out of the dataset for this lab.
+#Let's also toss out rows with NA values for body mass
+penguins <- penguins[penguins$species!="Chinstrap" & !is.na(penguins$body_mass_g),]
+```
+
+## 1. Gauging Estimator Effectiveness
+
+### Problem 1.1 (5 points)
+
+Consider the following estimator for the true variance ($Var(X)$) of a random variable that has had $n$ observations sampled from it: $$W^2 = \frac{\sum_{i=1}^n (X_i - \bar{X})^2}{n}.$$
+
+The book claims that this estimator would be **biased**. While a mathematical proof of this is beyond the scope of our class, we can write R code to visually depict the problem. Do the following:
+
+A.  (1 Point) Write a function to calculate $W^2$ from a given sample
+
+    ```{r}
+    True_XVar <- function(Xset){
+      Xrunning_sum <- 0
+      Xmean <- sum(Xset)/length(Xset)
+      
+      for (i in 1:length(Xset)) {
+        Xrunning_sum <- Xrunning_sum + ((Xset[i] - Xmean)^2)
+      }
+      
+      Xvar_result <- Xrunning_sum/length(Xset)
+      print(Xvar_result)
+    }
+    ```
+
+B.  (2 Points) Create two plots (using function `plot` with option `type="l"`) showing (1) how the mean (*i.e.,* expected value) of $W^2$ over 1000 samples of size $n$ changes with increasing sample size (vary $n$ from 1 to 100), for data sampled from a standard normal distribution, and (2) how the mean (*i.e.,* expected) sample variance changes with increasing sample size for the same distribution (using function `var`).
+
+    -   You will need to draw 1000 samples for each sample size $n$ and calculate $W^2$ for each sample to then generate a mean value of $W^2$ over all 1000 samples at each $n$
+
+    -   Your y-axis should be mean $W^2$ and your x-axis should be $n$ (a box per value of $n$ )
+
+    -   Set the y-axis of both plots to go from zero to one using option `ylim=c(0,1)`.
+
+    -   Use the `par` function to place the plots side-by-side for easy comparison
+
+        ```{r}
+        ##: initializing the mean value of true var (W2), the mean value of sample var and distribution for the simulation.
+        True_Xvar_results <- c()
+        True_Xvar_means <- c()
+        Sample_Xvar_results <- c()
+        Sample_Xvar_means <- c()
+
+        ##: Calculate the mean value of true var of random variable X 100 times and plot the distribution of means
+          for(i in 1:100){
+            
+            for(j in 1:1000){
+              True_Xvar_results[j] <- True_Var(rnorm(i))
+            }
+            True_Xvar_means[i] <- mean(True_Xvar_results)
+          }
+          
+          plot(True_Xvar_means, type = "l")
+
+
+
+        ##: Calculate the mean value of sample var of random variable X
+        #sample_size <- 1
+        #Mean_Sample_XVar <- function(dist){
+          
+          
+        #}
+        ```
+
+C.  (2 Points) Interpret your plots from part B. Do we see evidence of bias? Is this bias more pronounced at some values of $n$ than others?
+
+### Problem 1.2 (5 points)
+
+The arithmetic mean and median are both unbiased estimators for the true expected value ($E[X]$) of a normal random variable that has been sampled $n$ times. They can be calculated in R using the functions `mean` and `median`.
+
+A.  (3 Points) Create one plot (using function `plot` with option `type="l"`) showing (1) how the standard deviation of the sample mean (*i.e.* standard error) calculated from 1000 samples of size $n$ changes with increasing sample size (vary $n$ from 1 to 100), for data sampled from a standard normal distribution, **AND** (2) the same for the standard deviation of the sample median **on the same plot**.
+    -   You will need to draw 1000 samples for each sample size $n$ and calculate the mean for each sample to then generate a sample standard deviation of the mean over all 1000 samples at each $n$
+
+    -   This time I want you to plot two lines on the same axes. You can add points or lines to an existing plot using code like the following example:
+
+        ```{r}
+        plot(1:10,(1:10)^2,col="blue",type="l")
+        points(1:10,(1:10)^1.9,col="red",type="l",lty=2)
+        ```
+B.  (2 Points) Interpret your plot from part A. What does this plot tell us about the consistency and efficiency of these two estimators when applied to normally distributed data?
+
+## 2. Maximum Likelihood Estimation
+
+### Problem 2.1 (10 Points)
+
+You are a scientist studying bacteriophages (*i.e.,* viruses that infect bacteria). You have been studying one lytic bacteriophage strain in particular and its host bacterium in the lab. At the end of an infection of a cell by a lytic phage the cell is "lysed" (broken open) and some number of bacteriophage particles (offspring viruses) are released into the environment.
+
+Working diligently, you have been able to collect data on the number of bacteriophage particles produced by individually infected cells ([a difficult thing to do](https://journals.asm.org/doi/10.1128/spectrum.02663-21)). That is, you have collected data how many viral offspring are produced per infection. You can access this data by downloading it and directly loading it into R using:
+
+```{r}
+burst_data <- read.csv("https://raw.githubusercontent.com/jlw-ecoevo/jlw-ecoevo.github.io/refs/heads/master/biometry/Lab3_burst_data.csv")
+```
+
+Let's assume that viral particles are produced at a constant rate inside the host cell between the time of infection and the time of lysis. If this is true, we would expect, given a constant time of lysis, that the number of bacteriophage particles released at lysis should follow a Poisson distribution. We want to obtain a maximum likelihood estimate for the rate variable $\lambda$ in the Poisson distribution describing the number of bacteriophage particles released per infection.
+
+A.  (2 points) First, write an R function that takes a vector of data $N$ and a value for the rate parameter $\lambda$ and calculates the **log likelihood** of that data. Recall that we can write the likelihood of Poisson distributed data as: $$f(\text{data}|\text{parameters})=\mathcal{L}(\text{parameters}|\text{data})=\prod_{i=1}^n f(x_i|\text{parameters})=\prod_{i=1}^n \frac{e^{-\lambda}\lambda^{x_i}}{x_i!}.$$
+
+    -   We are **not** actually estimating the rate parameter in this question, nor am I asking you to solve this equation analytically. The function I am asking for should take $\{x_1, x_2,...,x_n\}$ (data) and $\lambda$ as inputs and calculate the log likelihood by plugging those values into the appropriate equation.
+
+    -   I am not actually asking you to use this function for this part of the question
+
+    -   You might find the function `dpois` useful here
+
+    -   Recall that $\log(x\times y)=\log(x)+\log(y)$
+
+B.  (2 points) Using only the first 5 observations in `burst_data` (`burst_data$NumPhage[1:5]`), use your function from Part A to calculate the log likelihood for a range of $\lambda$ from 1 to 50. Plot how the log likelihood changes with lambda.
+
+C.  (2 points) What is the approximate MLE for $\lambda$ using your result from part B? Try using the `which.max` function but be careful how you use it.
+
+D.  (2 points) Repeat Parts B-C using the full dataset. Do you notice anything different about your plot? Discuss.
+
+E.  (2 points) Now, plot your MLE solution against your original data. It should be apparent from this plot that the Poisson model is a poor fit for our data. Discuss some reasons why this might be (briefly).
+
+    -   First, make a histogram of the original bacteriophage data using the `freq=FALSE` option to get a density plot.
+    -   Then, add a line to your plot representing the PDF of the Poisson distribution you parameterized. Recall that you can obtain the pdf of a poisson distribution using the function `dpois` (just plug in your fitted $\lambda$). You can add a line to an existing plot using the `points` function with argument `type="l"`.
+    -   **Tip:** set `ylim=c(0,0.075)` to get everything to show up in your plot
+
+*Note: the data for this problem were taken from a real experiment by [Kannoly et al. 2022](https://doi.org/10.1128/spectrum.02663-21). In practice, getting single-cell measurements of virion production is difficult, so the authors used some clever tricks to get these numbers by using phages that were lysis-incapable and instead lysing the cells themselves at set time points. We use their 40 minute incubation data.*
+
+### Problem 2.2 (10 Points)
+
+This week I want us to once again take a look at our penguin body mass data. Let's take a look at that data quickly:
+
+```{r}
+plot(density(penguins$body_mass_g, 
+             na.rm = T),
+     xlab = "Penguin Body Mass (g)",
+     main = "")
+```
+
+To me, this doesn't look normal, and could possibly be bimodal. What if we modeled this data as a mixture $Y$ of two normal distributions $X_1\sim N(\mu_1,\sigma_1)$ and $X_2\sim N(\mu_2,\sigma_2)$ with distinct parameters where each observation $y$ has probability $p$ of coming from $X_1$ and probability $1-p$ of coming from $X_2$. In other words, the choice of distribution is a Bernoulli draw. We can write the likelihood of a **single observation** $y$ from this "Gaussian Mixture" as: $$\mathcal{L}(\text{parameters}|y)=f(y|\text{parameters})=pf(y|\mu_1,\sigma_1)+(1-p)f(y|\mu_2,\sigma_2)$$
+
+where $f(y|\mu_i,\sigma_i)$ is the PDF of a normal distribution with parameters $\mu_i$ and $\sigma_i$. You may find the function `dnorm` helpful when working on this question.
+
+A.  (2 Points) Write a function to calculate the **likelihood** for a single observation $y_i$ of body mass that takes $y_i$, $\mu_1$, $\mu_2$, $\sigma_1$, $\sigma_2$, and $p$ as inputs. Because of what we will be doing later on in this question, we want our function to take our parameters as a single vector with named entries `mu1`, `mu1`, `sd1`, `sd2`, and `p` so that you can reference them with `parameters["mu1"]` (and similar). Your function should take the following general form
+
+    ```{r}
+    #| eval: false
+    likelihoodSingleObservation <- function(parameters,yi){
+      
+      #calculate your likelihood
+      
+      return(your_likelihood)
+    }
+    ```
+
+B.  (2 Points) Write a function to calculate the **log likelihood** for a vector of observations $y=\{y_1,y_2,...,y_n\}$ and given parameter vector `parameters`. This function will need to call the function you wrote in Part A (yes, you can call a function inside of another function). Your function should take the following general form:
+
+    ```{r}
+    #| eval: false
+    likelihoodAllObservations <- function(parameters,y){
+      if(parameters["p"] < 0 | 
+         parameters["p"] > 1 | 
+         parameters["sd1"] < 0 | 
+         parameters["sd2"] < 0){
+        #This first part of the function just say to return that a parameter combination is infinitely unlikely if it falls outside the allowed ranges for that parameter
+        return(-Inf)
+      } else {
+        
+        #Calculate your likelihood
+        
+        return(your_likelihood)
+      }
+    }
+    ```
+
+C.  (0 Points) Now we want to use this function to fit parameters to our penguin data. Unlike in Problem 2.1, just plotting the likelihoods won't work because we are dealing with so many parameters here. Instead we will use a function for numerical optimization that will search possible parameter combinations, score them using our likelihood function and data, and then return the best result. Run the following code and report your MLE for your parameters (note how we removed NA values prior to estimation):
+
+    ```{r}
+    #| eval: false
+    parameterInitialVals = c(mu1 = 3500, sd1 = 450, mu2 = 5000, sd2 = 450, p = 0.5)
+    maximum = optim(par = parameterInitialVals, fn = likelihoodAllObservations, y = penguins$body_mass_g,
+    control = list(fnscale = -1))
+    MLE = maximum$par
+    print(paste0("My Maximum Likelihood Estimate for ",names(MLE),": ", MLE))
+    ```
+
+    *Note: numerical optimizers are not guaranteed to find the global best solution for a problem and might get stuck in local (suboptimal) solutions. There are many ways to deal with this that we won't get into in this class, but suffice to say that your solution can depend heavily on the initial parameter values you provide to start the search process when using these optimizers.*
+
+D.  (2 Points) Now, plot your MLE solution against your original data:
+
+    -   First, make a histogram of the original penguin data using the `freq=FALSE` option to get a density plot. For best results, use options `breaks=15` and `ylim=c(0,5e-4)` (I got these values just by fiddling with the plot until it looked nice).
+    -   Then, add lines to your plot representing the two fitted normal distributions you parameterized with densities scaled by $p$ and $(1-p)$. In other words, plot $pf(y|\mu_1,\sigma_1)$ and $(1-p)*f(y|\mu_2,\sigma_2)$. Recall that you can obtain the pdf of a normal distribution using the function `dnorm` (just plug in your fitted parameters). You can add lines to an existing plot using the `points` function with argument `type="l"`. Please make the two lines different colors so that they are easy to distinguish.
+
+E.  (2 Points) Now, we want to be able to, in a principled way, assign individual Penguins to our two groups. This is a common problem when clustering data, and our Gaussian Mixture model is essentially an approach for performing such clustering. What we want is the "posterior predictive probability" that penguin belongs to distribution 1 (or, one minus that probability that is belongs to distribution 2). The word "posterior" means it comes after incorporating information from the original data, and "predictive" because we want to predict group membership. We can write this probability as:
+
+    $$P(y\text{ from }X_1|y,\text{ parameters})=\frac{pf(y|\mu_1,\sigma_1)}{pf(y|\mu_1,\sigma_1)+(1-p)f(y|\mu_2,\sigma_2)}$$
+
+    Write a function to calculate this probability, apply it to your penguin data using your parameter estimates from Part C, and then plot two histograms depicting the distribution of this probability for the two penguin species (Adelie and Gentoo) in your dataset. Note that the denominator in this equation is just the output of the function your wrote in Part A.
+
+F.  (1 Point) Now I want you to make two plots nearly identical to Part D, but for each individual species in the dataset (Adelie or Gentoo). In this case, the only difference is that you should subset the data in your histogram to each species for their respective plot, still plotting the same MLE solution on top of these histograms. I am **NOT** asking you to re-fit your MLE, just change your plotting code.
+
+G.  (1 Point) Provide a brief interpretation of your results from Parts E and F. Why might this have been a particularly useful analysis if we didn't know our species labels beforehand?
+
+## 3. Central Limit Theorem
+
+### Problem 3.1 (5 Points)
+
+Use R to convince yourself of the Central Limit Theorem using draws from any 2 distributions that are not the Normal distribution (one should be continuous and the other discrete). Show plots of the actual sampling distribution of $\bar{X}$ as well as Q-Q plots to make your point. Briefly (2-3 sentences) explain your process and provide your code as well. [Here](https://www.stat.umn.edu/geyer/old/5101/rlook.html) is a nice list of R functions for simulating probability distributions.
+
+## 4. List of All Problems (Above, 35 Points)
+
+-   1.1(5 Points)
+
+-   1.2 (5 Points)
+
+-   2.1 (10 Points)
+
+-   2.2 (10 Points)
+
+-   3.1 (5 Points)
+
+## 5. Acknowledgements
+
+Problems 2.1 and 2.2 adapted from problem sets shared by Dr. Philip L.F. Johnson. Problem 3.1 adapted from problem sets shared by Dr. Heather Lynch.
