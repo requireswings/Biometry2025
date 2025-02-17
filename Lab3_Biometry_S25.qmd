@@ -174,11 +174,12 @@ A.  (2 points) First, write an R function that takes a vector of data $N$ and a 
     -   Recall that $\log(x\times y)=\log(x)+\log(y)$
 
 ```{r}
-LLP_Results <- c()
-Log_Prob_Density <- c()
+#LLP_Results <- c()
+#Log_Prob_Density <- c()
   
 log_likelihood_poisson <- function(Pset, max_rate){
-
+  LLP_Results <- c()
+  Log_Prob_Density <- c()
   for(lambda_value in 1:max_rate){
     
     for(observation_index in 1:length(Pset)){
@@ -188,34 +189,57 @@ log_likelihood_poisson <- function(Pset, max_rate){
     }
     LLP_Results[lambda_value] <- sum(Log_Prob_Density)
   }
-  print(LLP_Results)
-  print(Log_Prob_Density)
+  return(LLP_Results)
+  #return(Log_Prob_Density)
 }
 ```
 
 B.  (2 points) Using only the first 5 observations in `burst_data` (`burst_data$NumPhage[1:5]`), use your function from Part A to calculate the log likelihood for a range of $\lambda$ from 1 to 50. Plot how the log likelihood changes with lambda.
 
 ```{r}
-log_likelihood_poisson(burst_data$NumPhage[1:5], 50)
+LLP <- log_likelihood_poisson(burst_data$NumPhage[1:5], 50)
 
-plot(x=c(1,50), y=LLP_Results, col = "magenta", main = "Log Likelihood of a Poisson Distribution with Increasing Lambda", xlab = "lambda", ylab = "log likelihood")
+plot(x=c(1:50), y=LLP, col = "magenta", main = "Log Likelihood of a Poisson Distribution with Increasing Lambda", xlab = "lambda", ylab = "log likelihood")
 ```
 
 C.  (2 points) What is the approximate MLE for $\lambda$ using your result from part B? Try using the `which.max` function but be careful how you use it.
 
 ```{r}
-which.max(LLP_Results)
+which.max(LLP)
 ```
 
 D.  (2 points) Repeat Parts B-C using the full dataset. Do you notice anything different about your plot? Discuss.
 
-<!-- -->
+```{r}
+##: Part B
+LLPFull <- log_likelihood_poisson(burst_data$NumPhage, 50)
 
-D.  (2 points) Now, plot your MLE solution against your original data. It should be apparent from this plot that the Poisson model is a poor fit for our data. Discuss some reasons why this might be (briefly).
+plot(x=c(1:50), y=LLP, col = "magenta", main = "Log Likelihood of a Poisson Distribution with Increasing Lambda", xlab = "lambda", ylab = "log likelihood")
+
+##: Part C
+
+which.max(LLPFull)
+```
+
+::: callout-note
+:::
+
+E.  (2 points) Now, plot your MLE solution against your original data. It should be apparent from this plot that the Poisson model is a poor fit for our data. Discuss some reasons why this might be (briefly).
 
     -   First, make a histogram of the original bacteriophage data using the `freq=FALSE` option to get a density plot.
     -   Then, add a line to your plot representing the PDF of the Poisson distribution you parameterized. Recall that you can obtain the pdf of a poisson distribution using the function `dpois` (just plug in your fitted $\lambda$). You can add a line to an existing plot using the `points` function with argument `type="l"`.
     -   **Tip:** set `ylim=c(0,0.075)` to get everything to show up in your plot
+
+```{r}
+hist(burst_data$NumPhage, freq = FALSE, ylim = c(0,0.075))
+points(dpois(burst_data$NumPhage, 34), type = "l")
+```
+
+::: callout-note
+The Poisson distribution is a poor fit for this data set because...
+
+A more appropriate distribution could be...
+:::
 
 *Note: the data for this problem were taken from a real experiment by [Kannoly et al. 2022](https://doi.org/10.1128/spectrum.02663-21). In practice, getting single-cell measurements of virion production is difficult, so the authors used some clever tricks to get these numbers by using phages that were lysis-incapable and instead lysing the cells themselves at set time points. We use their 40 minute incubation data.*
 
