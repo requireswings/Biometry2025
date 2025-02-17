@@ -175,13 +175,16 @@ A.  (2 points) First, write an R function that takes a vector of data $N$ and a 
 
 ```{r}
 LLP_Results <- c()
+Log_Prob_Density <- c()
 
 log_likelihood_poisson <- function(Pset, max_rate){
   for(lambda_value in 1:max_rate){
     
     for(observation_index in 1:length(Pset)){
-      LLP_Results[observation_index] <- sum(log(dpois(Pset[observation_index],     lambda_value)))
+      Log_Prob_Density[observation_index] <- log(dpois(Pset[observation_index],     lambda_value))
     }
+    
+    LLP_Results[lambda_value] <- sum(Log_Prob_Density) 
   }
 }
 ```
@@ -189,7 +192,7 @@ log_likelihood_poisson <- function(Pset, max_rate){
 A.  (2 points) Using only the first 5 observations in `burst_data` (`burst_data$NumPhage[1:5]`), use your function from Part A to calculate the log likelihood for a range of $\lambda$ from 1 to 50. Plot how the log likelihood changes with lambda.
 
 ```{r}
-log_likelihood_poisson(burst_data$NumPhage[1:5], 50)
+plot(log_likelihood_poisson(burst_data$NumPhage[1:5], 50), xlab = "lambda", ylab = "log likelihood")
 ```
 
 A.  (2 points) What is the approximate MLE for $\lambda$ using your result from part B? Try using the `which.max` function but be careful how you use it.
