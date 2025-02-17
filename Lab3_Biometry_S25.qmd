@@ -176,30 +176,42 @@ A.  (2 points) First, write an R function that takes a vector of data $N$ and a 
 ```{r}
 LLP_Results <- c()
 Log_Prob_Density <- c()
-
+  
 log_likelihood_poisson <- function(Pset, max_rate){
+
   for(lambda_value in 1:max_rate){
     
     for(observation_index in 1:length(Pset)){
-      Log_Prob_Density[observation_index] <- log(dpois(Pset[observation_index],     lambda_value))
+      
+      Log_Prob_Density[observation_index] <- log(dpois(Pset[observation_index], lambda_value))
+      
     }
-    
-    LLP_Results[lambda_value] <- sum(Log_Prob_Density) 
+    LLP_Results[lambda_value] <- sum(Log_Prob_Density)
   }
+  print(LLP_Results)
+  print(Log_Prob_Density)
 }
 ```
 
-A.  (2 points) Using only the first 5 observations in `burst_data` (`burst_data$NumPhage[1:5]`), use your function from Part A to calculate the log likelihood for a range of $\lambda$ from 1 to 50. Plot how the log likelihood changes with lambda.
+B.  (2 points) Using only the first 5 observations in `burst_data` (`burst_data$NumPhage[1:5]`), use your function from Part A to calculate the log likelihood for a range of $\lambda$ from 1 to 50. Plot how the log likelihood changes with lambda.
 
 ```{r}
-plot(log_likelihood_poisson(burst_data$NumPhage[1:5], 50), xlab = "lambda", ylab = "log likelihood")
+log_likelihood_poisson(burst_data$NumPhage[1:5], 50)
+
+plot(x=c(1,50), y=LLP_Results, col = "magenta", main = "Log Likelihood of a Poisson Distribution with Increasing Lambda", xlab = "lambda", ylab = "log likelihood")
 ```
 
-A.  (2 points) What is the approximate MLE for $\lambda$ using your result from part B? Try using the `which.max` function but be careful how you use it.
+C.  (2 points) What is the approximate MLE for $\lambda$ using your result from part B? Try using the `which.max` function but be careful how you use it.
 
-B.  (2 points) Repeat Parts B-C using the full dataset. Do you notice anything different about your plot? Discuss.
+```{r}
+which.max(LLP_Results)
+```
 
-C.  (2 points) Now, plot your MLE solution against your original data. It should be apparent from this plot that the Poisson model is a poor fit for our data. Discuss some reasons why this might be (briefly).
+D.  (2 points) Repeat Parts B-C using the full dataset. Do you notice anything different about your plot? Discuss.
+
+<!-- -->
+
+D.  (2 points) Now, plot your MLE solution against your original data. It should be apparent from this plot that the Poisson model is a poor fit for our data. Discuss some reasons why this might be (briefly).
 
     -   First, make a histogram of the original bacteriophage data using the `freq=FALSE` option to get a density plot.
     -   Then, add a line to your plot representing the PDF of the Poisson distribution you parameterized. Recall that you can obtain the pdf of a poisson distribution using the function `dpois` (just plug in your fitted $\lambda$). You can add a line to an existing plot using the `points` function with argument `type="l"`.
