@@ -261,31 +261,33 @@ where $f(y|\mu_i,\sigma_i)$ is the PDF of a normal distribution with parameters 
 A.  (2 Points) Write a function to calculate the **likelihood** for a single observation $y_i$ of body mass that takes $y_i$, $\mu_1$, $\mu_2$, $\sigma_1$, $\sigma_2$, and $p$ as inputs. Because of what we will be doing later on in this question, we want our function to take our parameters as a single vector with named entries `mu1`, `mu1`, `sd1`, `sd2`, and `p` so that you can reference them with `parameters["mu1"]` (and similar). Your function should take the following general form
 
     ```{r}
-    #| eval: false
-    likelihoodSingleObservation <- function(parameters,yi){
+    params <- c("mu1", "mu2", "sd1", "sd2", "p")
+
+    likelihoodSingleObservation <- function(params,yi){
+
+      yi_likelihood = ((params["p"] * dnorm(yi, params["mu1"], params["sd1"])) + ((1 - params["p"]) * dnorm(yi, params["mu2"], params["sd2"])))
       
-      #calculate your likelihood
-      
-      return(your_likelihood)
+      return(yi_likelihood)
     }
     ```
 
 B.  (2 Points) Write a function to calculate the **log likelihood** for a vector of observations $y=\{y_1,y_2,...,y_n\}$ and given parameter vector `parameters`. This function will need to call the function you wrote in Part A (yes, you can call a function inside of another function). Your function should take the following general form:
 
     ```{r}
-    #| eval: false
-    likelihoodAllObservations <- function(parameters,y){
-      if(parameters["p"] < 0 | 
-         parameters["p"] > 1 | 
-         parameters["sd1"] < 0 | 
-         parameters["sd2"] < 0){
-        #This first part of the function just say to return that a parameter combination is infinitely unlikely if it falls outside the allowed ranges for that parameter
+    y <- c()
+
+    likelihoodAllObservations <- function(params,y){
+      
+      if(params["p"] < 0 | 
+         params["p"] > 1 | 
+         params["sd1"] < 0 | 
+         params["sd2"] < 0){
         return(-Inf)
       } else {
         
-        #Calculate your likelihood
+        y_log_likelihood = sum(log(likelihoodSingleObservation(params, y)))
         
-        return(your_likelihood)
+        return(y_log_likelihood)
       }
     }
     ```
@@ -293,7 +295,6 @@ B.  (2 Points) Write a function to calculate the **log likelihood** for a vector
 C.  (0 Points) Now we want to use this function to fit parameters to our penguin data. Unlike in Problem 2.1, just plotting the likelihoods won't work because we are dealing with so many parameters here. Instead we will use a function for numerical optimization that will search possible parameter combinations, score them using our likelihood function and data, and then return the best result. Run the following code and report your MLE for your parameters (note how we removed NA values prior to estimation):
 
     ```{r}
-    #| eval: false
     parameterInitialVals = c(mu1 = 3500, sd1 = 450, mu2 = 5000, sd2 = 450, p = 0.5)
     maximum = optim(par = parameterInitialVals, fn = likelihoodAllObservations, y = penguins$body_mass_g,
     control = list(fnscale = -1))
@@ -307,6 +308,14 @@ D.  (2 Points) Now, plot your MLE solution against your original data:
 
     -   First, make a histogram of the original penguin data using the `freq=FALSE` option to get a density plot. For best results, use options `breaks=15` and `ylim=c(0,5e-4)` (I got these values just by fiddling with the plot until it looked nice).
     -   Then, add lines to your plot representing the two fitted normal distributions you parameterized with densities scaled by $p$ and $(1-p)$. In other words, plot $pf(y|\mu_1,\sigma_1)$ and $(1-p)*f(y|\mu_2,\sigma_2)$. Recall that you can obtain the pdf of a normal distribution using the function `dnorm` (just plug in your fitted parameters). You can add lines to an existing plot using the `points` function with argument `type="l"`. Please make the two lines different colors so that they are easy to distinguish.
+
+```{r}
+hist(penguins$body_mass_g, freq = FALSE, breaks = 15, ylim = c(0,5e-4), main = "Penguin Body Mass (g)", xlab = "Penguin Body Mass (g)", ylab = "Probability Density")
+
+points(y = (0.381251453066743 * dnorm(3000:6500, 3515.6665385862, 342.703635105696)), x = 3000:6500, type = "l", col = "goldenrod")
+
+points(y = ((1 - 0.381251453066743) * dnorm(3000:6500, 4817.2426968284, 633.64435427738)), x = 3000:6500, type = "l", col = "cornflowerblue")
+```
 
 E.  (2 Points) Now, we want to be able to, in a principled way, assign individual Penguins to our two groups. This is a common problem when clustering data, and our Gaussian Mixture model is essentially an approach for performing such clustering. What we want is the "posterior predictive probability" that penguin belongs to distribution 1 (or, one minus that probability that is belongs to distribution 2). The word "posterior" means it comes after incorporating information from the original data, and "predictive" because we want to predict group membership. We can write this probability as:
 
