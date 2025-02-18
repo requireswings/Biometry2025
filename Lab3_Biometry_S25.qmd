@@ -24,10 +24,6 @@ penguins <- penguins[penguins$species!="Chinstrap" & !is.na(penguins$body_mass_g
 
 ### Problem 1.1 (5 points)
 
-Consider the following estimator for the true variance ($Var(X)$) of a random variable that has had $n$ observations sampled from it: $$W^2 = \frac{\sum_{i=1}^n (X_i - \bar{X})^2}{n}.$$
-
-The book claims that this estimator would be **biased**. While a mathematical proof of this is beyond the scope of our class, we can write R code to visually depict the problem. Do the following:
-
 A.  (1 Point) Write a function to calculate $W^2$ from a given sample
 
 ```{r}
@@ -42,19 +38,9 @@ A.  (1 Point) Write a function to calculate $W^2$ from a given sample
       Xvar_result <- Xrunning_sum/length(Xset)
       print(Xvar_result)
     }
-
-    True_XVar(c(1,2,3))
 ```
 
 B.  (2 Points) Create two plots (using function `plot` with option `type="l"`) showing (1) how the mean (*i.e.,* expected value) of $W^2$ over 1000 samples of size $n$ changes with increasing sample size (vary $n$ from 1 to 100), for data sampled from a standard normal distribution, and (2) how the mean (*i.e.,* expected) sample variance changes with increasing sample size for the same distribution (using function `var`).
-
-    -   You will need to draw 1000 samples for each sample size $n$ and calculate $W^2$ for each sample to then generate a mean value of $W^2$ over all 1000 samples at each $n$
-
-    -   Your y-axis should be mean $W^2$ and your x-axis should be $n$ (a box per value of $n$ )
-
-    -   Set the y-axis of both plots to go from zero to one using option `ylim=c(0,1)`.
-
-    -   Use the `par` function to place the plots side-by-side for easy comparison
 
 ```{r}
 ##: initializing the mean value of true var (W2), the mean value of sample var and distribution for the simulation.
@@ -96,18 +82,7 @@ There is evidence of bias in the mean of W\^2 when n is small (specifically 1 \<
 
 ### Problem 1.2 (5 points)
 
-The arithmetic mean and median are both unbiased estimators for the true expected value ($E[X]$) of a normal random variable that has been sampled $n$ times. They can be calculated in R using the functions `mean` and `median`.
-
 A.  (3 Points) Create one plot (using function `plot` with option `type="l"`) showing (1) how the standard deviation of the sample mean (*i.e.* standard error) calculated from 1000 samples of size $n$ changes with increasing sample size (vary $n$ from 1 to 100), for data sampled from a standard normal distribution, **AND** (2) the same for the standard deviation of the sample median **on the same plot**.
-
-    -   You will need to draw 1000 samples for each sample size $n$ and calculate the mean for each sample to then generate a sample standard deviation of the mean over all 1000 samples at each $n$
-
-    -   This time I want you to plot two lines on the same axes. You can add points or lines to an existing plot using code like the following example:
-
-        ```{r}
-        plot(1:10,(1:10)^2,col="blue",type="l")
-        points(1:10,(1:10)^1.9,col="red",type="l",lty=2)
-        ```
 
 ```{r}
 ##: create one plot showing how the standard deviation of the sample mean (i.e. standard error) calculated from 1000 samples of size n changes with increasing sample size (vary n from 1 to 100), for data sampled from a standard normal distribution
@@ -153,25 +128,11 @@ When applied to a normal distribution, the standard deviation of both the mean a
 
 ### Problem 2.1 (10 Points)
 
-You are a scientist studying bacteriophages (*i.e.,* viruses that infect bacteria). You have been studying one lytic bacteriophage strain in particular and its host bacterium in the lab. At the end of an infection of a cell by a lytic phage the cell is "lysed" (broken open) and some number of bacteriophage particles (offspring viruses) are released into the environment.
-
-Working diligently, you have been able to collect data on the number of bacteriophage particles produced by individually infected cells ([a difficult thing to do](https://journals.asm.org/doi/10.1128/spectrum.02663-21)). That is, you have collected data how many viral offspring are produced per infection. You can access this data by downloading it and directly loading it into R using:
-
 ```{r}
 burst_data <- read.csv("https://raw.githubusercontent.com/jlw-ecoevo/jlw-ecoevo.github.io/refs/heads/master/biometry/Lab3_burst_data.csv")
 ```
 
-Let's assume that viral particles are produced at a $\text{constant rate}$ inside the host cell between the time of infection and the time of lysis. If this is true, we would expect, given a constant time of lysis, that the number of bacteriophage particles released at lysis should follow a $\text{Poisson distribution}$. We want to obtain a $\text{maximum likelihood estimate}$ for the rate variable $\lambda$ in the Poisson distribution describing the number of bacteriophage particles released per infection.
-
-A.  (2 points) First, write an R function that takes a vector of data $N$ and a value for the rate parameter $\lambda$ and calculates the **log likelihood** of that data. Recall that we can write the likelihood of Poisson distributed data as: $$f(\text{data}|\text{parameters})=\mathcal{L}(\text{parameters}|\text{data})=\prod_{i=1}^n f(x_i|\text{parameters})=\prod_{i=1}^n \frac{e^{-\lambda}\lambda^{x_i}}{x_i!}.$$
-
-    -   We are **not** actually estimating the rate parameter in this question, nor am I asking you to solve this equation analytically. The function I am asking for should take $\{x_1, x_2,...,x_n\}$ (data) and $\lambda$ as inputs and calculate the log likelihood by plugging those values into the appropriate equation.
-
-    -   I am not actually asking you to use this function for this part of the question
-
-    -   You might find the function `dpois` useful here
-
-    -   Recall that $\log(x\times y)=\log(x)+\log(y)$
+A.  (2 points) First, write an R function that takes a vector of data $N$ and a value for the rate parameter $\lambda$ and calculates the **log likelihood** of that data.
 
 ```{r}
 #LLP_Results <- c()
@@ -222,41 +183,22 @@ which.max(LLPFull)
 ```
 
 ::: callout-note
+There are no stark differences between the plot with the whole data set and the plot with only the first 5 observations in the set.
 :::
 
 E.  (2 points) Now, plot your MLE solution against your original data. It should be apparent from this plot that the Poisson model is a poor fit for our data. Discuss some reasons why this might be (briefly).
 
-    -   First, make a histogram of the original bacteriophage data using the `freq=FALSE` option to get a density plot.
-    -   Then, add a line to your plot representing the PDF of the Poisson distribution you parameterized. Recall that you can obtain the pdf of a poisson distribution using the function `dpois` (just plug in your fitted $\lambda$). You can add a line to an existing plot using the `points` function with argument `type="l"`.
-    -   **Tip:** set `ylim=c(0,0.075)` to get everything to show up in your plot
-
 ```{r}
-hist(burst_data$NumPhage, freq = FALSE, ylim = c(0,0.075))
-points(dpois(burst_data$NumPhage, 34), type = "l")
+hist(burst_data$NumPhage, freq = FALSE, main = "Original Bacteriophage Data and Poisson PDF", ylab = "Probability Density", xlab = "NumPhage" , ylim = c(0,0.1), col = "cornflowerblue")
+points(dpois(burst_data$NumPhage, 34), type = "l", col = "darkorchid")
+legend(65,0.1, legend = c("Original Data", "PDF of Poisson Dist."), fill = c("cornflowerblue", "darkorchid"))
 ```
 
 ::: callout-note
-The Poisson distribution is a poor fit for this data set because...
-
-A more appropriate distribution could be...
+The Poisson distribution could be a poor fit for this data set because...
 :::
 
-*Note: the data for this problem were taken from a real experiment by [Kannoly et al. 2022](https://doi.org/10.1128/spectrum.02663-21). In practice, getting single-cell measurements of virion production is difficult, so the authors used some clever tricks to get these numbers by using phages that were lysis-incapable and instead lysing the cells themselves at set time points. We use their 40 minute incubation data.*
-
 ### Problem 2.2 (10 Points)
-
-This week I want us to once again take a look at our penguin body mass data. Let's take a look at that data quickly:
-
-```{r}
-plot(density(penguins$body_mass_g, 
-             na.rm = T),
-     xlab = "Penguin Body Mass (g)",
-     main = "")
-```
-
-To me, this doesn't look normal, and could possibly be bimodal. What if we modeled this data as a mixture $Y$ of two normal distributions $X_1\sim N(\mu_1,\sigma_1)$ and $X_2\sim N(\mu_2,\sigma_2)$ with distinct parameters where each observation $y$ has probability $p$ of coming from $X_1$ and probability $1-p$ of coming from $X_2$. In other words, the choice of distribution is a Bernoulli draw. We can write the likelihood of a **single observation** $y$ from this "Gaussian Mixture" as: $$\mathcal{L}(\text{parameters}|y)=f(y|\text{parameters})=pf(y|\mu_1,\sigma_1)+(1-p)f(y|\mu_2,\sigma_2)$$
-
-where $f(y|\mu_i,\sigma_i)$ is the PDF of a normal distribution with parameters $\mu_i$ and $\sigma_i$. You may find the function `dnorm` helpful when working on this question.
 
 A.  (2 Points) Write a function to calculate the **likelihood** for a single observation $y_i$ of body mass that takes $y_i$, $\mu_1$, $\mu_2$, $\sigma_1$, $\sigma_2$, and $p$ as inputs. Because of what we will be doing later on in this question, we want our function to take our parameters as a single vector with named entries `mu1`, `mu1`, `sd1`, `sd2`, and `p` so that you can reference them with `parameters["mu1"]` (and similar). Your function should take the following general form
 
@@ -315,6 +257,8 @@ hist(penguins$body_mass_g, freq = FALSE, breaks = 15, ylim = c(0,5e-4), main = "
 points(y = (0.381251453066743 * dnorm(3000:6500, 3515.6665385862, 342.703635105696)), x = 3000:6500, type = "l", col = "goldenrod")
 
 points(y = ((1 - 0.381251453066743) * dnorm(3000:6500, 4817.2426968284, 633.64435427738)), x = 3000:6500, type = "l", col = "cornflowerblue")
+
+legend(5500,5e-04, legend = c("dnorm1", "dnorm2"), fill = c("goldenrod", "cornflowerblue"))
 ```
 
 E.  (2 Points) Now, we want to be able to, in a principled way, assign individual Penguins to our two groups. This is a common problem when clustering data, and our Gaussian Mixture model is essentially an approach for performing such clustering. What we want is the "posterior predictive probability" that penguin belongs to distribution 1 (or, one minus that probability that is belongs to distribution 2). The word "posterior" means it comes after incorporating information from the original data, and "predictive" because we want to predict group membership. We can write this probability as:
@@ -323,15 +267,64 @@ E.  (2 Points) Now, we want to be able to, in a principled way, assign individua
 
     Write a function to calculate this probability, apply it to your penguin data using your parameter estimates from Part C, and then plot two histograms depicting the distribution of this probability for the two penguin species (Adelie and Gentoo) in your dataset. Note that the denominator in this equation is just the output of the function your wrote in Part A.
 
+```{r}
+a_penguins <- subset(penguins, penguins$species=="Adelie")
+g_penguins <- subset(penguins, penguins$species=="Gentoo")
+
+param_estimates <- c(3515.6665385862, 4817.2426968284, 342.703635105696, 633.64435427738, 0.381251453066743)
+
+post_pred_likelihood <- function(param_estimates,ypp){
+
+  ypp_likelihood = ((param_estimates[5] * dnorm(ypp, param_estimates[1], param_estimates[3]))) / ((param_estimates[5] * dnorm(ypp, param_estimates[1], param_estimates[3])) + ((1 - param_estimates[5]) * dnorm(ypp, param_estimates[2], param_estimates[4])))
+  
+  return(ypp_likelihood)
+}
+
+ppl_adelie <- post_pred_likelihood(param_estimates, a_penguins$body_mass_g)
+ppl_gentoo <- post_pred_likelihood(param_estimates, g_penguins$body_mass_g)
+
+par(mfrow=c(1,2))
+hist(ppl_adelie, freq = FALSE, breaks = 15, xlab = "Body Mass (g)", main = "Adelie PPL Body Mass")
+hist(ppl_gentoo, freq = FALSE, breaks = 15, xlab = "Body Mass (g)", main = "Gentoo PPL Body Mass")
+
+
+```
+
 F.  (1 Point) Now I want you to make two plots nearly identical to Part D, but for each individual species in the dataset (Adelie or Gentoo). In this case, the only difference is that you should subset the data in your histogram to each species for their respective plot, still plotting the same MLE solution on top of these histograms. I am **NOT** asking you to re-fit your MLE, just change your plotting code.
 
+```{r}
+par(mfrow=c(1,2))
+hist(a_penguins$body_mass_g, freq = FALSE, main = "Adelie Penguins Body Mass ", xlab = "Body Mass (g)")
+points(y = (0.381251453066743 * dnorm(3000:6500, 3515.6665385862, 342.703635105696)), x = 3000:6500, type = "l", col = "goldenrod")
+points(y = ((1 - 0.381251453066743) * dnorm(3000:6500, 4817.2426968284, 633.64435427738)), x = 3000:6500, type = "l", col = "cornflowerblue")
+legend(4250,9e-04, legend = c("dnorm1", "dnorm2"), fill = c("goldenrod", "cornflowerblue"))
+
+hist(g_penguins$body_mass_g, freq = FALSE, main = "Adelie Penguins Body Mass ", xlab = "Body Mass (g)")
+points(y = (0.381251453066743 * dnorm(3000:6500, 3515.6665385862, 342.703635105696)), x = 3000:6500, type = "l", col = "goldenrod")
+points(y = ((1 - 0.381251453066743) * dnorm(3000:6500, 4817.2426968284, 633.64435427738)), x = 3000:6500, type = "l", col = "cornflowerblue")
+legend(5750,7.5e-04, legend = c("dnorm1", "dnorm2"), fill = c("goldenrod", "cornflowerblue"))
+```
+
 G.  (1 Point) Provide a brief interpretation of your results from Parts E and F. Why might this have been a particularly useful analysis if we didn't know our species labels beforehand?
+
+::: callout-note
+Interpretation:
+
+This would be a useful analysis had we not known the species subsets beforehand because the bimodal distribution of the data suggests a separation in processes that lead to their distributions and/or implies that there are two distinct groups in the whole set of samples.
+:::
 
 ## 3. Central Limit Theorem
 
 ### Problem 3.1 (5 Points)
 
 Use R to convince yourself of the Central Limit Theorem using draws from any 2 distributions that are not the Normal distribution (one should be continuous and the other discrete). Show plots of the actual sampling distribution of $\bar{X}$ as well as Q-Q plots to make your point. Briefly (2-3 sentences) explain your process and provide your code as well. [Here](https://www.stat.umn.edu/geyer/old/5101/rlook.html) is a nice list of R functions for simulating probability distributions.
+
+```{r}
+
+```
+
+::: callout-note
+:::
 
 ## 4. List of All Problems (Above, 35 Points)
 
