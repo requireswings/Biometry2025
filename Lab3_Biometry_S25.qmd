@@ -191,7 +191,7 @@ which.max(LLPFull)
 ```
 
 ::: callout-note
-The log likelihood as lambda increases past \~60 decreases at a faster rate in the full data set than in the partial data set. The MLE for the partial data set is larger than the MLE for the full data set.
+The log likelihood as lambda increases past \~40 decreases at a faster rate in the full data set than in the partial data set. The MLE for the partial data set is larger than the MLE for the full data set. It is possible that the first 5 observations that were sampled were not done in a truly random fashion, or that observations are not independent of each other.
 
 (smaller dataset \<- less representative, 1st 5 may have been biased)
 :::
@@ -210,7 +210,7 @@ legend(65,0.1, legend = c("Original Data", "PDF of Poisson Dist."),
 ```
 
 ::: callout-note
-The Poisson distribution could be a poor fit for this data set because...
+The Poisson distribution could be a poor fit for this data set because the rate may be changing as more cells are lysed, and the rate remains constant for all sizes of n in a Poisson distribution.
 :::
 
 ### Problem 2.2 (10 Points)
@@ -327,8 +327,8 @@ points(y = (0.381251453066743 * dnorm(3000:6500, 3515.6665385862,
       342.703635105696)), x = 3000:6500, type = "l", col = "goldenrod")
 points(y = ((1 - 0.381251453066743) * dnorm(3000:6500, 4817.2426968284,
       633.64435427738)), x = 3000:6500, type = "l", col = "cornflowerblue")
-legend(4250,9e-04, legend = c("dnorm1", "dnorm2"), fill = c("goldenrod",
-      "cornflowerblue"))
+legend(4000,9e-04, cex = 0.5, legend = c("dnorm1", "dnorm2"), 
+       fill = c("goldenrod", "cornflowerblue"))
 
 hist(g_penguins$body_mass_g, freq = FALSE, 
      main = "Gentoo Penguins Body \n Mass ", xlab = "Body Mass (g)")
@@ -336,8 +336,8 @@ points(y = (0.381251453066743 * dnorm(3000:6500, 3515.6665385862,
       342.703635105696)), x = 3000:6500, type = "l", col = "goldenrod")
 points(y = ((1 - 0.381251453066743) * dnorm(3000:6500, 4817.2426968284, 
       633.64435427738)), x = 3000:6500, type = "l", col = "cornflowerblue")
-legend(5750,7.5e-04, legend = c("dnorm1", "dnorm2"), fill = c("goldenrod",
-      "cornflowerblue"))
+legend(5250,7.5e-04, cex = 0.5, legend = c("dnorm1", "dnorm2"), 
+       fill = c("goldenrod", "cornflowerblue"))
 ```
 
 G.  (1 Point) Provide a brief interpretation of your results from Parts E and F. Why might this have been a particularly useful analysis if we didn't know our species labels beforehand?
@@ -351,17 +351,6 @@ This would be a useful analysis had we not known the species subsets beforehand 
 ## 3. Central Limit Theorem
 
 ### Problem 3.1 (5 Points)
-
-Use R to convince yourself of the Central Limit Theorem using draws from any 2 distributions that are not the Normal distribution (one should be continuous and the other discrete). Show plots of the actual sampling distribution of $\bar{X}$ as well as Q-Q plots to make your point. Briefly (2-3 sentences) explain your process and provide your code as well. [Here](https://www.stat.umn.edu/geyer/old/5101/rlook.html) is a nice list of R functions for simulating probability distributions.
-
-```{r}
-exp_data <- dexp(c(1:15000), 0.05)
-
-pois_data <- dpois(c(1:15000), 10)
-
-barplot(exp_data)
-barplot(pois_data)
-```
 
 ```{r}
 ##///// High Sample Values
@@ -383,7 +372,7 @@ for(i in 1:pois_high_sample_size){
 ##///// Low Sample Values
 exp_low_sample_means <- c()
 
-exp_low_sample_size = 1000
+exp_low_sample_size = 100
 for(i in 1:exp_low_sample_size){
   
   exp_low_sample_means[i] <- mean(rexp(exp_low_sample_size, 0.05))
@@ -391,31 +380,68 @@ for(i in 1:exp_low_sample_size){
 
 pois_low_sample_means <- c()
 
-pois_low_sample_size = 1000
+pois_low_sample_size = 100
 for(i in 1:pois_low_sample_size){
   pois_low_sample_means[i] <- mean(rpois(pois_low_sample_size, 10))
 }
 
 par(mfrow=c(1,2))
+hist(pois_low_sample_means, 
+main = "Poisson Sample Means
+\n Sample Size 100")
+hist(pois_high_sample_means, 
+main = "Poisson Sample Means
+\n Sample Size 10,000")
+
+par(mfrow=c(1,2))
+hist(exp_low_sample_means, 
+main = "Exp. Sample Means
+\n Sample Size 100")
+hist(exp_high_sample_means, 
+main = "Exp. Sample Means
+\n Sample Size 10,000")
+
+par(mfrow=c(1,2))
 qqnorm(pois_low_sample_means, 
-       main = "Poisson Distribution Sample Means Q-Q Plot, Sample Size 1,000")
+main = "Poisson Q-Q Plot,
+\n Sample Size 100")
 points(qqline(pois_low_sample_means))
 
 qqnorm(exp_low_sample_means, 
-       main = "Exponential Distribution Sample Means Q-Q Plot, Sample Size 1,000")
+main = "Exp. Q-Q Plot,
+\n Sample Size 100")
 points(qqline(exp_low_sample_means))
 
 par(mfrow=c(1,2))
 qqnorm(pois_high_sample_means, 
-       main = "Poisson Distribution Sample Means Q-Q Plot, Sample Size 10,000")
+main = "Poisson Q-Q Plot,
+\n Sample Size 10,000")
 points(qqline(pois_high_sample_means))
 
 qqnorm(exp_high_sample_means, 
-       main = "Exponential Distribution Sample Means Q-Q Plot, Sample Size 10,000")
+main = "Exp. Q-Q Plot,
+\n Sample Size 10,000")
 points(qqline(exp_high_sample_means))
 ```
 
 ::: callout-note
+To demonstrate the Central Limit Theorem, I first generated 4 distributions, and used a for loop adding the mean of a sample of increasing size until a specified parameter (100 for small sample size, and 10,000 for high sample size) to a vector of means. The following were plotted as a histogram of low/high sample means and Q-Q Plots:
+
+-   1 discrete Poisson distribution with a small sampling size of 100 (pois_low_sample_means)
+
+-   1 continuous exponential distribution with a small sampling size of 100 (exp_low_sample_means)
+
+-   1 discrete Poisson distribution with a high sampling size of 10,000 (pois_high_sample_means)
+
+-   1 continuous exponential distribution with a high sampling size of 10,000 (exp_high_sample_means)
+
+The results show that for both exponential and poisson distributions as the sampling size increased from 100 to 10,000:
+
+-   The distribution of the sample means became more normalized on the histograms.
+
+-   The Q-Q plot of the distributions better matched the control qqline
+
+This supports the Central Limit Theorem's core concept that the distribution of sample means in almost any distribution (no matter how skewed) will approach normal form at high sampling sizes.
 :::
 
 ## 4. List of All Problems (Above, 35 Points)
